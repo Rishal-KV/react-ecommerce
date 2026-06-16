@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { useApp } from '../context/AppContext';
+import { useApp } from '../hooks/useApp';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/Table';
 import { Button } from '../components/ui/Button';
@@ -8,28 +8,28 @@ import { Select } from '../components/ui/Select';
 import { Badge } from '../components/ui/Badge';
 import { Dialog } from '../components/ui/Dialog';
 import { Alert, AlertTitle, AlertDescription } from '../components/ui/Alert';
-import { 
-  Search, 
-  Plus, 
-  Trash2, 
-  Eye, 
-  FilterX, 
-  PlusCircle, 
-  MinusCircle, 
-  ShoppingBag, 
+import {
+  Search,
+  Plus,
+  Trash2,
+  Eye,
+  FilterX,
+  PlusCircle,
+  MinusCircle,
+  ShoppingBag,
   Ticket,
   ChevronRight,
   AlertCircle
 } from 'lucide-react';
 
 export const Orders = () => {
-  const { 
-    orders, 
-    products, 
-    createOrder, 
-    updateOrderStatus, 
-    cancelOrder, 
-    isValidTransition, 
+  const {
+    orders,
+    products,
+    createOrder,
+    updateOrderStatus,
+    cancelOrder,
+    isValidTransition,
     calculateCartDetails,
     coupons
   } = useApp();
@@ -55,7 +55,7 @@ export const Orders = () => {
   const [customerName, setCustomerName] = useState('');
   const [cartItems, setCartItems] = useState([]); // [{ id, name, price, quantity }]
   const [couponCode, setCouponCode] = useState('');
-  
+
   // Selection helper in form
   const [selectedProductId, setSelectedProductId] = useState('');
   const [addQuantity, setAddQuantity] = useState(1);
@@ -243,7 +243,7 @@ export const Orders = () => {
     return orders.filter((o) => {
       // 1. Search Customer Name
       const matchesCustomer = o.customerName.toLowerCase().includes(searchCustomer.toLowerCase());
-      
+
       // 2. Filter Status
       const matchesStatus = filterStatus === '' || o.status === filterStatus;
 
@@ -475,9 +475,8 @@ export const Orders = () => {
                       <select
                         value={order.status}
                         onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                        className={`text-xs rounded border border-border p-1 bg-background text-foreground ${
-                          order.status === 'Cancelled' || order.status === 'Delivered' ? 'opacity-60 cursor-not-allowed' : ''
-                        }`}
+                        className={`text-xs rounded border border-border p-1 bg-background text-foreground ${order.status === 'Cancelled' || order.status === 'Delivered' ? 'opacity-60 cursor-not-allowed' : ''
+                          }`}
                         disabled={order.status === 'Cancelled' || order.status === 'Delivered'}
                       >
                         {['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].map((st) => (
@@ -502,17 +501,7 @@ export const Orders = () => {
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        {order.status !== 'Cancelled' && order.status !== 'Delivered' && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleCancelOrder(order.id)}
-                            title="Cancel Order"
-                            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-500/10"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
+
                       </div>
                     </TableCell>
                   </TableRow>
@@ -559,7 +548,7 @@ export const Orders = () => {
             <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
               <ShoppingBag className="h-3.5 w-3.5" /> Add Products
             </h3>
-            
+
             <div className="grid gap-3 sm:grid-cols-3 items-end">
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Select Product</label>
@@ -676,7 +665,7 @@ export const Orders = () => {
                 onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                 placeholder="e.g. SAVE10, FLAT500, BUY2GET1"
               />
-              
+
               {/* Coupon Engine Feedbacks */}
               {cartSummary.couponSuccess && (
                 <span className="text-xs text-emerald-600 block mt-1 font-medium">{cartSummary.couponSuccess}</span>

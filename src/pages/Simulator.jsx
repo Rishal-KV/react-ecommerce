@@ -1,12 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { useApp } from '../context/AppContext';
+import { useApp } from '../hooks/useApp';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Select } from '../components/ui/Select';
 import { Badge } from '../components/ui/Badge';
 import { Alert, AlertTitle, AlertDescription } from '../components/ui/Alert';
-import { Play, RotateCcw, AlertTriangle, RefreshCw, Layers, TrendingUp, Info } from 'lucide-react';
+import { Play, RotateCcw, AlertTriangle, RefreshCw, Layers, TrendingUp, Info, Download } from 'lucide-react';
 
 export const Simulator = () => {
   const {
@@ -139,6 +139,26 @@ export const Simulator = () => {
       style: 'currency',
       currency: 'INR',
     }).format(amount);
+  };
+
+  const downloadReport = () => {
+    const reportContent = `Revenue Report
+--------------------------------------
+Gross Revenue: ${formatINR(financeMetrics.grossRevenue)}
+Total Discounts Given: -${formatINR(financeMetrics.totalDiscounts)}
+Net Revenue: ${formatINR(financeMetrics.netRevenue)}
+Profit Margin: ${financeMetrics.profitMargin}%
+--------------------------------------
+Generated on: ${new Date().toLocaleString('en-IN')}
+`;
+    const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `revenue_report_${new Date().toISOString().split('T')[0]}.txt`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -409,59 +429,42 @@ export const Simulator = () => {
           </CardContent>
         </Card>
 
-        {/* CHALLENGE 4: REVENUE & profit CALCULATIONS */}
+        {/* CHALLENGE 4: REVENUE REPORT */}
         <Card className="flex flex-col">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Challenge 4: Financial Audit Report</CardTitle>
+              <CardTitle>Revenue Report</CardTitle>
               <Badge variant="default" className="bg-primary/20 text-primary border-primary/20">Accounting</Badge>
             </div>
             <CardDescription>
               A breakdown of financials generated dynamically across active orders (excluding Cancelled).
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4 flex-1">
+          <CardContent className="space-y-4 flex-1 flex flex-col justify-between">
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="border border-border p-3 rounded-lg bg-card text-center">
-                <span className="text-[10px] uppercase font-bold text-muted-foreground">Gross Revenue</span>
-                <span className="block text-lg font-bold text-foreground mt-0.5">{formatINR(financeMetrics.grossRevenue)}</span>
-                <span className="text-[9px] text-muted-foreground block mt-0.5">Sum of item prices * quantities</span>
+              <div className="border border-border p-4 rounded-lg bg-card text-center flex flex-col justify-center min-h-[90px]">
+                <span className="text-sm font-semibold text-muted-foreground">Gross Revenue</span>
+                <span className="block text-2xl font-bold text-foreground mt-1">{formatINR(financeMetrics.grossRevenue)}</span>
               </div>
-              <div className="border border-border p-3 rounded-lg bg-card text-center">
-                <span className="text-[10px] uppercase font-bold text-muted-foreground">Total Discounts Given</span>
-                <span className="block text-lg font-bold text-rose-600 mt-0.5">-{formatINR(financeMetrics.totalDiscounts)}</span>
-                <span className="text-[9px] text-muted-foreground block mt-0.5">Sum of coupon deductions</span>
+              <div className="border border-border p-4 rounded-lg bg-card text-center flex flex-col justify-center min-h-[90px]">
+                <span className="text-sm font-semibold text-muted-foreground">Total Discounts Given</span>
+                <span className="block text-2xl font-bold text-rose-600 mt-1">-{formatINR(financeMetrics.totalDiscounts)}</span>
               </div>
-              <div className="border border-border p-3 rounded-lg bg-card text-center">
-                <span className="text-[10px] uppercase font-bold text-muted-foreground">Net Revenue</span>
-                <span className="block text-lg font-bold text-emerald-600 mt-0.5">{formatINR(financeMetrics.netRevenue)}</span>
-                <span className="text-[9px] text-muted-foreground block mt-0.5">Subtotal - Discount + Tax + Ship</span>
+              <div className="border border-border p-4 rounded-lg bg-card text-center flex flex-col justify-center min-h-[90px]">
+                <span className="text-sm font-semibold text-muted-foreground">Net Revenue</span>
+                <span className="block text-2xl font-bold text-emerald-600 mt-1">{formatINR(financeMetrics.netRevenue)}</span>
               </div>
-              <div className="border border-border p-3 rounded-lg bg-card text-center">
-                <span className="text-[10px] uppercase font-bold text-muted-foreground">Profit Margin</span>
-                <span className="block text-lg font-bold text-blue-600 mt-0.5">{financeMetrics.profitMargin}%</span>
-                <span className="text-[9px] text-muted-foreground block mt-0.5">Profit: {formatINR(financeMetrics.profit)}</span>
+              <div className="border border-border p-4 rounded-lg bg-card text-center flex flex-col justify-center min-h-[90px]">
+                <span className="text-sm font-semibold text-muted-foreground">Profit Margin</span>
+                <span className="block text-2xl font-bold text-blue-600 mt-1">{financeMetrics.profitMargin}%</span>
               </div>
             </div>
 
-            <div className="border border-border rounded-lg p-3 bg-muted/20 space-y-2 text-xs">
-              <span className="font-bold text-[11px] block uppercase text-muted-foreground">Mathematical Formulas:</span>
-              <div className="font-mono text-[10px] space-y-1 text-foreground">
-                <div>• Gross Revenue = &Sigma; (item.price * item.quantity)</div>
-                <div>• Discounts = &Sigma; (coupon.deductions)</div>
-                <div>• Profit = (Gross Revenue - Discounts) - COGS</div>
-                <div>• COGS (Cost of Goods Sold) = &Sigma; ((product.price * 0.7) * item.quantity)</div>
-                <div>• Profit Margin % = (Profit / (Gross Revenue - Discounts)) * 100</div>
-              </div>
+            <div className="pt-2">
+              <Button onClick={downloadReport} className="w-full flex items-center justify-center gap-2">
+                <Download className="h-4 w-4" /> Download Report
+              </Button>
             </div>
-
-            <Alert variant="info" className="text-xs">
-              <TrendingUp className="h-4 w-4" />
-              <AlertTitle>Profit Margin Insight</AlertTitle>
-              <AlertDescription>
-                COGS is calculated using the specific cost prices of products (e.g. iPhone 15 Pro cost price: ₹90,000, sale price: ₹1,20,000). This provides a exact margins computation.
-              </AlertDescription>
-            </Alert>
           </CardContent>
         </Card>
       </div>

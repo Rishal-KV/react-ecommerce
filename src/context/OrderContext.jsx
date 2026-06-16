@@ -1,12 +1,13 @@
-import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
-import { useProducts } from './ProductContext';
+import React, { createContext, useState, useEffect, useMemo, useCallback } from 'react';
+import { useProducts } from '../hooks/useProducts';
 import { 
   calculateRevenueMetrics, 
   calculateOrderMetrics, 
   calculateTopProducts 
 } from '../utils/metrics';
+import { storageService } from '../services/storage';
 
-const OrderContext = createContext();
+export const OrderContext = createContext();
 
 const getPastDateISO = (daysAgo) => {
   const date = new Date();
@@ -159,21 +160,19 @@ const INITIAL_COUPONS = [
 export const OrderProvider = ({ children }) => {
   const { products, setProducts } = useProducts();
   const [orders, setOrders] = useState(() => {
-    const saved = localStorage.getItem('orders');
-    return saved ? JSON.parse(saved) : INITIAL_ORDERS;
+    return storageService.get('orders', INITIAL_ORDERS);
   });
 
   const [coupons, setCoupons] = useState(() => {
-    const saved = localStorage.getItem('coupons');
-    return saved ? JSON.parse(saved) : INITIAL_COUPONS;
+    return storageService.get('coupons', INITIAL_COUPONS);
   });
 
   useEffect(() => {
-    localStorage.setItem('orders', JSON.stringify(orders));
+    storageService.set('orders', orders);
   }, [orders]);
 
   useEffect(() => {
-    localStorage.setItem('coupons', JSON.stringify(coupons));
+    storageService.set('coupons', coupons);
   }, [coupons]);
 
   const isValidTransition = useCallback((currentStatus, nextStatus) => {
@@ -439,12 +438,4 @@ export const OrderProvider = ({ children }) => {
       {children}
     </OrderContext.Provider>
   );
-};
-
-export const useOrders = () => {
-  const context = useContext(OrderContext);
-  if (!context) {
-    throw new Error('useOrders must be used within an OrderProvider');
-  }
-  return context;
 };

@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
+import React, { createContext, useState, useEffect, useMemo, useCallback } from 'react';
+import { storageService } from '../services/storage';
 
-const ProductContext = createContext();
+export const ProductContext = createContext();
 
 const INITIAL_PRODUCTS = [
   { id: '1', name: 'iPhone 15 Pro', sku: 'PH-IPH15P', price: 120000, stock: 15, category: 'Electronics', status: 'Active', soldCount: 24 },
@@ -14,23 +15,20 @@ const INITIAL_PRODUCTS = [
 
 export const ProductProvider = ({ children }) => {
   const [products, setProducts] = useState(() => {
-    const saved = localStorage.getItem('products');
-    return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
+    return storageService.get('products', INITIAL_PRODUCTS);
   });
 
   const [categories, setCategories] = useState(() => {
-    const saved = localStorage.getItem('categories');
-    if (saved) return JSON.parse(saved);
     const initialCats = ['Electronics', 'Audio', 'Accessories'];
-    return initialCats;
+    return storageService.get('categories', initialCats);
   });
 
   useEffect(() => {
-    localStorage.setItem('products', JSON.stringify(products));
+    storageService.set('products', products);
   }, [products]);
 
   useEffect(() => {
-    localStorage.setItem('categories', JSON.stringify(categories));
+    storageService.set('categories', categories);
   }, [categories]);
 
   const addProduct = useCallback((product) => {
@@ -109,12 +107,4 @@ export const ProductProvider = ({ children }) => {
       {children}
     </ProductContext.Provider>
   );
-};
-
-export const useProducts = () => {
-  const context = useContext(ProductContext);
-  if (!context) {
-    throw new Error('useProducts must be used within a ProductProvider');
-  }
-  return context;
 };

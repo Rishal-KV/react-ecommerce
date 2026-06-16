@@ -1,12 +1,8 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import { Header } from './components/Header';
-import { Dashboard } from './pages/Dashboard';
-import { Products } from './pages/Products';
-import { Orders } from './pages/Orders';
-import { Simulator } from './pages/Simulator';
-import { Coupons } from './pages/Coupons';
+import { AppRoutes } from './routes/AppRoutes';
 
 function App() {
   return (
@@ -18,13 +14,7 @@ function App() {
 
           {/* Main Content Pane */}
           <main className="flex-1 pb-16 bg-slate-50/40 dark:bg-zinc-950/20">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/orders" element={<Orders />} />
-              <Route path="/coupons" element={<Coupons />} />
-              <Route path="/simulator" element={<Simulator />} />
-            </Routes>
+            <AppRoutes />
           </main>
 
           {/* Persistent Footer */}

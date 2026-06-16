@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, ShoppingBag, ClipboardList, Zap, Moon, Sun, AlertTriangle, Ticket } from 'lucide-react';
-import { useApp } from '../context/AppContext';
+import { useApp } from '../hooks/useApp';
 import { Badge } from './ui/Badge';
 
 export const Header = React.memo(() => {
